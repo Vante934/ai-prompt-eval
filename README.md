@@ -1,98 +1,77 @@
-# Promptfoo: LLM evals & red teaming
+# 🎯 PromptEval (轻量级 AI 评测与 Prompt 回归测试平台)
 
 <p align="center">
-  <a href="https://npmjs.com/package/promptfoo"><img src="https://img.shields.io/npm/v/promptfoo" alt="npm"></a>
-  <a href="https://npmjs.com/package/promptfoo"><img src="https://img.shields.io/npm/dm/promptfoo" alt="npm"></a>
-  <a href="https://github.com/promptfoo/promptfoo/actions/workflows/main.yml"><img src="https://img.shields.io/github/actions/workflow/status/promptfoo/promptfoo/main.yml" alt="GitHub Workflow Status"></a>
-  <a href="https://github.com/promptfoo/promptfoo/blob/main/LICENSE"><img src="https://img.shields.io/github/license/promptfoo/promptfoo" alt="MIT license"></a>
-  <a href="https://discord.gg/promptfoo"><img src="https://img.shields.io/discord/1146610656779440188?logo=discord&label=promptfoo" alt="Discord"></a>
+  <img src="https://img.shields.io/badge/Node.js-20.x-green.svg" alt="Node.js" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x-blue.svg" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-19.0-61dafb.svg" alt="React 19" />
+  <img src="https://img.shields.io/badge/ORM-Drizzle-orange.svg" alt="Drizzle ORM" />
+  <img src="https://img.shields.io/badge/Database-SQLite-003B57.svg" alt="SQLite" />
+  <img src="https://img.shields.io/badge/Realtime-Socket.IO-black.svg" alt="Socket.IO" />
+  <img src="https://img.shields.io/badge/License-MIT-purple.svg" alt="License" />
 </p>
 
-<p align="center">
-  <code>promptfoo</code> is a CLI and library for evaluating and red-teaming LLM-based apps. Stop using trial-and-error... start shipping secure, reliable agents
-</p>
+> **面向 LLM 应用开发者的端到端评测框架**：告别“凭感觉改 Prompt”的玄学迭代，通过自动化回归评测、多维度评估器、版本快照对比与可视化分析，保障 LLM 输出质量的确定性与可溯源性。
 
-<p align="center">
-  <a href="https://www.promptfoo.dev">Website</a> ·
-  <a href="https://www.promptfoo.dev/docs/getting-started/">Getting Started</a> ·
-  <a href="https://www.promptfoo.dev/docs/red-team/">Red Teaming</a> ·
-  <a href="https://www.promptfoo.dev/docs/">Documentation</a> ·
-  <a href="https://discord.gg/promptfoo">Discord</a>
-</p>
+---
 
-> Promptfoo is now part of OpenAI. Promptfoo remains open source and MIT licensed. Read the [company update](https://www.promptfoo.dev/blog/promptfoo-joining-openai/).
+## 📌 背景与痛点 (Why PromptEval?)
 
-## Quick Start
+在实际 LLM 与 Agent 应用开发中（如 RAG 检索生成、复杂 Agent 规划），开发者通常面临以下挑战：
+1. **玄学调优**：修改了一个 Prompt 修复了 Case A，却悄悄搞砸了 Case B 和 C（回归恶化）。
+2. **缺乏历史基准**：无法对历史不同版本 Prompt / 召回参数进行横向打分对比。
+3. **主观评测成本高**：人工校验百条以上数据耗时且标准不一致；简单的字符串匹配无法评估语义质量。
 
-```sh
-npm install -g promptfoo
-promptfoo init --example getting-started
-```
+**PromptEval** 提供了轻量、无外部重型依赖的**评测与回归闭环**，支持多模型 API、批量数据集运行、自动多维评分与版本 Diff。
 
-Also available via `brew install promptfoo` and `pip install promptfoo`. Or use `npx promptfoo@latest` to run any command without installing.
+---
 
-Most LLM providers require an API key. Set yours as an environment variable:
+## ✨ 核心特性 (Key Features)
 
-```sh
-export OPENAI_API_KEY=sk-abc123
-```
+### 1. ⚙️ 配置驱动与快照隔离 (Config-Driven & Snapshots)
+- **三层解耦设计**：测试用例 (`Test Cases`)、模型供应商 (`Provider API`)、评估器 (`Evaluators`) 完全解耦，支持自由组合编排。
+- **不可变运行快照 (`Run Version Snapshot`)**：每次评测固化数据集版本、模型参数与提示词，评测结果可 100% 离线复现与追溯。
 
-Run an eval and view results:
+### 2. 📏 多维度自动化评估矩阵 (Multi-Evaluators)
+- **精确匹配 (Exact Match)**：针对确定性字段（如 JSON Schema 格式、特定关键词召回）。
+- **语义相似度 (Semantic Similarity)**：基于向量距离计算生成答案与标准答案（Ground Truth）的语义偏差。
+- **LLM-as-Judge（模型裁判）机制**：
+  - 内置固定评分量表（Rubric）与评分准则；
+  - 强制设定 `temperature = 0` 保证裁判稳定性；
+  - 引入**双次评分一致性校验（Double-Evaluation Consistency Check）**，有效遏制大模型评分漂移（Score Drift）。
 
-```sh
-cd getting-started
-promptfoo eval
-promptfoo view
-```
+### 3. 📊 回归分析与多端协同 (Regression & Collaboration)
+- **版本自动化 Diff**：一键对比两批次 Run 的指标浮动（准确率、延迟、Token 消耗、得分提升率），并支持导出标准 CSV 报表。
+- **CLI & Web 双模式驱动**：评测引擎通过 `Socket.IO` 实时将进度、流式日志与评测结果推送至 React 19 Dashboard，终端与面板实时联动。
 
-> **See [Getting Started](https://www.promptfoo.dev/docs/getting-started/) (evals) or [Red Teaming](https://www.promptfoo.dev/docs/red-team/) (vulnerability scanning) for more!**
+---
 
-## What can you do with Promptfoo?
+## 🏗️ 架构与评测流 (Architecture)
 
-- **Test your prompts and models** with [automated evaluations](https://www.promptfoo.dev/docs/getting-started/)
-- **Secure your LLM apps** with [red teaming](https://www.promptfoo.dev/docs/red-team/) and vulnerability scanning
-- **Compare models** side-by-side (OpenAI, Anthropic, Azure, Bedrock, Ollama, and [more](https://www.promptfoo.dev/docs/providers/))
-- **Automate checks** in [CI/CD](https://www.promptfoo.dev/docs/integrations/ci-cd/)
-- **Review pull requests** for LLM-related security and compliance issues with [code scanning](https://www.promptfoo.dev/docs/code-scanning/)
-- **Share results** with your team
-
-Here's what it looks like in action:
-
-<img src="site/static/img/claude-vs-gpt-example@2x.png" alt="prompt evaluation matrix - web viewer" width="700">
-
-It works on the command line too:
-
-<img src="https://www.promptfoo.dev/img/docs/self-grading.gif" alt="promptfoo command line" width="700">
-
-It also can generate [security vulnerability reports](https://www.promptfoo.dev/docs/red-team/):
-
-<img src="https://www.promptfoo.dev/img/redteam-vulnerability-report-hero@2x.png" alt="gen ai red team" width="700">
-
-## Why Promptfoo?
-
-- **Developer-first**: Fast, with features like live reload and caching
-- **Private**: LLM evals run 100% locally - your prompts never leave your machine
-- **Flexible**: Works with any LLM API or programming language
-- **Battle-tested**: Powers LLM apps serving 10M+ users in production
-- **Data-driven**: Make decisions based on metrics, not gut feel
-- **Open source**: MIT licensed, with an active community
-
-## Learn More
-
-- [Getting Started](https://www.promptfoo.dev/docs/getting-started/)
-- [Full Documentation](https://www.promptfoo.dev/docs/intro/)
-- [Red Teaming Guide](https://www.promptfoo.dev/docs/red-team/)
-- [CLI Usage](https://www.promptfoo.dev/docs/usage/command-line/)
-- [Node.js Package](https://www.promptfoo.dev/docs/usage/node-package/)
-- [Supported Models](https://www.promptfoo.dev/docs/providers/)
-- [Code Scanning Guide](https://www.promptfoo.dev/docs/code-scanning/)
-
-## Contributing
-
-We welcome contributions! Check out our [contributing guide](https://www.promptfoo.dev/docs/contributing/) to get started.
-
-Join our [Discord community](https://discord.gg/promptfoo) for help and discussion.
-
-<a href="https://github.com/promptfoo/promptfoo/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=promptfoo/promptfoo" />
-</a>
+```text
+ ┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+ │ Test Dataset    │      │ Prompt & Config  │      │ Providers / LLM │
+ │ (JSON / CSV)    │      │ (YAML Snapshot)  │      │ (OpenAI/DeepSeek│
+ └────────┬────────┘      └────────┬─────────┘      └────────┬────────┘
+          │                        │                         │
+          └────────────────┐       │       ┌─────────────────┘
+                           ▼       ▼       ▼
+                     ┌───────────────────────────┐
+                     │   PromptEval Core Engine   │
+                     │  (Parallel Execution Pool)│
+                     └─────────────┬─────────────┘
+                                   │
+             ┌─────────────────────┼─────────────────────┐
+             ▼                     ▼                     ▼
+      [Exact Match]      [Similarity Match]     [LLM-as-Judge]
+                                                 (Temp=0 / Rubric)
+                                   │
+                                   ▼
+                     ┌───────────────────────────┐
+                     │   SQLite (Drizzle ORM)    │ ───► Immutable Snapshot
+                     └─────────────┬─────────────┘
+                                   │ (Socket.IO Event Stream)
+             ┌─────────────────────┴─────────────────────┐
+             ▼                                           ▼
+      [CLI Realtime Output]                     [React 19 Dashboard]
+      - Progress Bar                            - Run Diff & Trends
+      - Summary Table                           - Radar Charts & CSV Export
